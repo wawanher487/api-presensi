@@ -1,0 +1,35 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+
+@Schema({ timestamps: true }) 
+export class History extends Document {
+  @Prop()
+  datetime: string;
+
+  @Prop()
+  timestamp: number;
+
+  // nama file gambar
+  @Prop()
+  value: string; 
+
+  @Prop()
+  guid_device: string;
+
+  @Prop()
+  guid: string;
+
+  @Prop({default: 'tamu'})
+  unit: string;
+
+  @Prop({ default: false })
+  process: boolean;
+
+  @Prop({ default: false })
+  checkStatus: boolean;
+
+  @Prop()
+  create_at: Date;
+}
+
+export const HistorySchema = SchemaFactory.createForClass(History);
