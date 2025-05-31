@@ -56,7 +56,7 @@ export class HistoryService {
             );
         }
 
-        const history = await this.model.find().sort({ timestamp: -1 }).limit(resPerPage).skip(skip).exec();
+        const history = await this.model.find().sort({ timestamp: -1}).limit(resPerPage).skip(skip).exec();
 
         const mapHistory = history.map(this.mapToHistoryResponse);
 
