@@ -1,31 +1,34 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   HttpException,
   HttpStatus,
-  Param,
-  Patch,
-  Post,
   Query,
 } from '@nestjs/common';
+import { HistoryAiService } from './history_ai.service';
+import {
+  CreateHistoryAiDto,
+  HistoryAiResponse,
+} from './dto/create-history_ai.dto';
 import { Query as ExpressQuery } from 'express-serve-static-core';
+import { UpdateHistoryAiDto } from './dto/update-history_ai.dto';
 import { WebResponse } from 'src/model/web.model';
-import { CreateHistoryDto, HistoryResponse } from './dto/create_history.dto';
-import { HistoryService } from './history.service';
-import { UpdateHistoryDto } from './dto/update_history.dto';
 
-@Controller('history')
-export class HistoryController {
-  constructor(private readonly historyService: HistoryService) {}
+@Controller('history_ai')
+export class HistoryAiController {
+  constructor(private readonly historyAiService: HistoryAiService) {}
 
   @Post('/create')
   async create(
-    @Body() createHistoryDto: CreateHistoryDto,
-  ): Promise<WebResponse<HistoryResponse>> {
+    @Body() createHistoryAiDto: CreateHistoryAiDto,
+  ): Promise<WebResponse<HistoryAiResponse>> {
     try {
-      const result = await this.historyService.create(createHistoryDto);
+      const result = await this.historyAiService.create(createHistoryAiDto);
       return {
         success: true,
         message: 'Data berhasil disimpan',
@@ -37,19 +40,19 @@ export class HistoryController {
         {
           succes: false,
           message: error.message,
-          statuscode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          statuscode: HttpStatus.BAD_REQUEST,
         },
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }
 
-  @Get('/get')
+  @Get('get')
   async findAll(
     @Query() query: ExpressQuery,
-  ): Promise<WebResponse<HistoryResponse[]>> {
+  ): Promise<WebResponse<HistoryAiResponse[]>> {
     try {
-      const result = await this.historyService.findAll(query);
+      const result = await this.historyAiService.findAll(query);
       return {
         success: true,
         message: 'Data berhasil ditemukan',
@@ -74,9 +77,9 @@ export class HistoryController {
   @Get('/get/:id')
   async findById(
     @Param('id') id: string,
-  ): Promise<WebResponse<HistoryResponse>> {
+  ): Promise<WebResponse<HistoryAiResponse>> {
     try {
-      const result = await this.historyService.findById(id);
+      const result = await this.historyAiService.findById(id);
       return {
         success: true,
         message: 'Data berhasil ditemukan',
@@ -88,44 +91,23 @@ export class HistoryController {
         {
           success: false,
           message: error.message,
-          statuscode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          statuscode: error.status || HttpStatus.NOT_FOUND,
         },
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('/guid/:guid')
-  async findByGuid(
-    @Param('guid') guid: string,
-  ): Promise<WebResponse<HistoryResponse>> {
-    try {
-      const result = await this.historyService.findByGuid(guid);
-      return {
-        success: true,
-        message: 'Data berhasil ditemukan',
-        data: result,
-        statuscode: HttpStatus.OK,
-      };
-    } catch (error) {
-      throw new HttpException(
-        {
-          success: false,
-          message: error.message,
-          statuscode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-        },
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        error.status || HttpStatus.NOT_FOUND,
       );
     }
   }
 
   @Patch('/update/:id')
-  async updateById(
+  async update(
     @Param('id') id: string,
-    @Body() updateHistoryDto: UpdateHistoryDto,
-  ): Promise<WebResponse<HistoryResponse>> {
+    @Body() updateHistoryAiDto: UpdateHistoryAiDto,
+  ):Promise<WebResponse<HistoryAiResponse>> {
     try {
-      const result = await this.historyService.updateById(id, updateHistoryDto);
+      const result = await this.historyAiService.updateById(
+        id,
+        updateHistoryAiDto,
+      );
       return {
         success: true,
         message: 'Data berhasil diperbarui',
@@ -137,17 +119,18 @@ export class HistoryController {
         {
           success: false,
           message: error.message,
-          statuscode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          statuscode: error.status || HttpStatus.BAD_REQUEST,
         },
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        error.status || HttpStatus.BAD_REQUEST,
       );
     }
+    
   }
 
   @Delete('/delete/:id')
-  async delete(@Param('id') id: string) {
+  async delelte(@Param('id') id: string) {
     try {
-      const result = await this.historyService.deleteById(id);
+      const result = await this.historyAiService.deleteById(id);
       return {
         success: true,
         message: result,
@@ -158,9 +141,9 @@ export class HistoryController {
         {
           success: false,
           message: error.message,
-          statuscode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+          statuscode: error.status || HttpStatus.NOT_FOUND,
         },
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+        error.status || HttpStatus.NOT_FOUND,
       );
     }
   }
