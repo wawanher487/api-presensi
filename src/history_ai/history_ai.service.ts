@@ -9,6 +9,7 @@ import { isValidObjectId, Model } from 'mongoose';
 import { HistoryAi, HistoryAiDocument } from './schema/history_ai.schema';
 import { v4 as uuidv4 } from 'uuid';
 import { Query } from 'express-serve-static-core';
+import dayjs = require('dayjs');
 
 @Injectable()
 export class HistoryAiService {
@@ -25,12 +26,15 @@ export class HistoryAiService {
       keletihan: historyAi.keletihan,
       gambar: historyAi.gambar,
       status_absen: historyAi.status_absen,
+      userGuid: historyAi.userGuid,
       guid: historyAi.guid,
       guid_device: historyAi.guid_device,
       datetime: historyAi.datetime,
       timestamp: historyAi.timestamp,
       unit: historyAi.unit,
       process: historyAi.process,
+      createdAt: historyAi.createdAt,
+      updatedAt: historyAi.updatedAt,
     };
   }
 
@@ -39,9 +43,14 @@ export class HistoryAiService {
   ): Promise<HistoryAiResponse> {
     const historyAi = await this.historyAiModel.create({
       ...createHistoryAiDto,
+      userGuid: createHistoryAiDto.guid || uuidv4(),
       guid: createHistoryAiDto.guid || uuidv4(),
       guid_device: createHistoryAiDto.guid_device || 'CAM-P0721',
       process: createHistoryAiDto.process || 'done',
+      keletihan: createHistoryAiDto.keletihan || generateRandomNumber(),
+      datetime:
+        createHistoryAiDto.datetime || dayjs().format('DD-MM-YYYY HH:mm:ss'),
+      timestamp: createHistoryAiDto.timestamp || Math.floor(Date.now() / 1000),
     });
     return this.mapToHistoryAiResponse(historyAi);
   }
@@ -183,4 +192,10 @@ export class HistoryAiService {
     }
     return `Data dengan id ${id} berhasil dihapus.`;
   }
+}
+
+//untuk generate random number as string
+function generateRandomNumber(): number {
+  const number = Math.floor(Math.random() * 100) + 1;
+  return number;
 }

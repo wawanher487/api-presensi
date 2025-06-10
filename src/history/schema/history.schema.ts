@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema({ timestamps: true }) 
+@Schema({ timestamps: true })
 export class History extends Document {
   @Prop()
   datetime: string;
@@ -11,7 +11,7 @@ export class History extends Document {
 
   // nama file gambar
   @Prop()
-  value: string; 
+  value: string;
 
   @Prop()
   guid_device: string;
@@ -19,7 +19,7 @@ export class History extends Document {
   @Prop()
   guid: string;
 
-  @Prop({default: 'tamu'})
+  @Prop({ default: 'tamu' })
   unit: string;
 
   @Prop({ default: false })
@@ -30,6 +30,12 @@ export class History extends Document {
 
   @Prop()
   create_at: Date;
+
+  @Prop()
+  createdAt?: Date;
+
+  @Prop()
+  updatedAt?: Date;
 }
 
 export const HistorySchema = SchemaFactory.createForClass(History);

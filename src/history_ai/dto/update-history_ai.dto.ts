@@ -1,4 +1,4 @@
-import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateHistoryAiDto {
   @IsString()
@@ -20,6 +20,10 @@ export class UpdateHistoryAiDto {
   @IsString()
   @IsOptional()
   gambar?: string;
+
+  @IsString()
+  @IsOptional()
+  userGuid?: string;
 
   @IsString()
   @IsOptional()

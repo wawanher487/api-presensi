@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HistoryModule } from './history/history.module';
 import { MainDbModule, SecondaryDbModule } from './config/database';
 import { HistoryAiModule } from './history_ai/history_ai.module';
+import { ProfilingModule } from './profiling/profiling.module';
 
 @Module({
   imports: [ConfigModule.forRoot({isGlobal: true}),
@@ -10,6 +11,7 @@ import { HistoryAiModule } from './history_ai/history_ai.module';
     SecondaryDbModule,
     HistoryModule,
     HistoryAiModule,
+    ProfilingModule,
   ],
   controllers: [],
   providers: [],

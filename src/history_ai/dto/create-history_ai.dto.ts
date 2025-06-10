@@ -1,9 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsNumber,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateHistoryAiDto {
   @IsString()
@@ -15,8 +10,8 @@ export class CreateHistoryAiDto {
   mood: string;
 
   @IsNumber()
-  @IsNotEmpty()
-  keletihan: number;
+  @IsOptional()
+  keletihan?: number;
 
   @IsString()
   @IsNotEmpty()
@@ -28,6 +23,10 @@ export class CreateHistoryAiDto {
 
   @IsString()
   @IsOptional()
+  userGuid?: string;
+
+  @IsString()
+  @IsOptional()
   guid?: string;
 
   @IsString()
@@ -35,11 +34,11 @@ export class CreateHistoryAiDto {
   guid_device?: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   datetime: string;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   timestamp: number;
 
   @IsString()
@@ -60,7 +59,7 @@ export class HistoryAiResponse {
   @IsString()
   mood?: string;
 
-  @IsString()
+  @IsNumber()
   keletihan?: number;
 
   @IsString()
@@ -70,20 +69,27 @@ export class HistoryAiResponse {
   gambar: string;
 
   @IsString()
+  userGuid: string;
+
+  @IsString()
   guid: string;
 
   @IsString()
   guid_device?: string;
 
-  @IsString()
-  datetime: string;
+  @IsOptional()
+  datetime?: string;
 
-  @IsNumber()
-  timestamp: number;
+  @IsOptional()
+  timestamp?: number;
 
   @IsString()
   unit: string;
 
   @IsString()
   process?: string;
+
+  createdAt?: Date;
+
+  updatedAt?: Date;
 }

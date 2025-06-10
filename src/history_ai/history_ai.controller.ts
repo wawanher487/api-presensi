@@ -134,6 +134,7 @@ export class HistoryAiController {
       return {
         success: true,
         message: result,
+        data: result,
         statuscode: HttpStatus.OK,
       };
     } catch (error) {

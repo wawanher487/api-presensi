@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsNumber, IsString, IsOptional, IsBoolean, IsUUID } from "class-validator";
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateHistoryDto {
   @IsNotEmpty()
@@ -59,5 +66,8 @@ export class HistoryResponse {
 
   @IsBoolean()
   checkStatus?: boolean;
-}
 
+  createdAt?: Date;
+
+  updatedAt?: Date;
+}

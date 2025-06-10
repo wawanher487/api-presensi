@@ -22,6 +22,8 @@ export class HistoryService {
       unit: history.unit,
       process: history.process,
       checkStatus: history.checkStatus,
+      createdAt: history.createdAt,
+      updatedAt: history.updatedAt,
     };
   }
 
