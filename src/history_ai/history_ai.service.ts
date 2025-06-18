@@ -16,7 +16,7 @@ export class HistoryAiService {
   constructor(
     @InjectModel(HistoryAi.name, 'SECONDARY_DB')
     private readonly historyAiModel: Model<HistoryAiDocument>,
-  ) {}
+  ) { }
 
   private mapToHistoryAiResponse(historyAi: HistoryAiDocument) {
     return {
@@ -33,6 +33,12 @@ export class HistoryAiService {
       timestamp: historyAi.timestamp,
       unit: historyAi.unit,
       process: historyAi.process,
+      jam_masuk: historyAi.jam_masuk,
+      jam_keluar: historyAi.jam_keluar,
+      jam_masuk_actual: historyAi.jam_masuk_actual,
+      jam_keluar_actual: historyAi.jam_keluar_actual,
+      jumlah_telat: historyAi.jumlah_telat,
+      total_jam_telat: historyAi.total_jam_telat,
       createdAt: historyAi.createdAt,
       updatedAt: historyAi.updatedAt,
     };
@@ -51,6 +57,14 @@ export class HistoryAiService {
       datetime:
         createHistoryAiDto.datetime || dayjs().format('DD-MM-YYYY HH:mm:ss'),
       timestamp: createHistoryAiDto.timestamp || Math.floor(Date.now() / 1000),
+      unit: createHistoryAiDto.unit || 'tamu',
+      jam_masuk: createHistoryAiDto.jam_masuk || '08:00:00',
+      jam_masuk_actual:
+        createHistoryAiDto.jam_masuk_actual || dayjs().format('HH:mm:ss'),
+      jam_keluar: createHistoryAiDto.jam_keluar || '17:00:00',
+      jam_keluar_actual: createHistoryAiDto.jam_keluar_actual || dayjs().format('HH:mm:ss'),
+      jumlah_telat: createHistoryAiDto.jumlah_telat || 0,
+      total_jam_telat: createHistoryAiDto.total_jam_telat || 0,
     });
     return this.mapToHistoryAiResponse(historyAi);
   }

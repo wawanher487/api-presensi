@@ -45,6 +45,24 @@ export class HistoryAi {
   process: string;
 
   @Prop()
+  jam_masuk: string;
+
+  @Prop()
+  jam_keluar: string;
+
+  @Prop()
+  jam_masuk_actual: string;
+
+  @Prop()
+  jam_keluar_actual: string;
+
+  @Prop({ default: 0 })
+  jumlah_telat: number;
+
+  @Prop({ default: 0 })
+  total_jam_telat: number;
+
+  @Prop()
   createdAt?: Date;
 
   @Prop()

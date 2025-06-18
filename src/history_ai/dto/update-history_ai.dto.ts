@@ -48,4 +48,28 @@ export class UpdateHistoryAiDto {
   @IsString()
   @IsOptional()
   process?: string;
+
+  @IsString()
+  @IsOptional()
+  jam_masuk?: string;
+
+  @IsString()
+  @IsOptional()
+  jam_keluar?: string;
+
+  @IsString()
+  @IsOptional()
+  jam_masuk_actual?: string;
+
+  @IsString()
+  @IsOptional()
+  jam_keluar_actual?: string;
+
+  @IsNumber()
+  @IsOptional()
+  jumlah_telat?: number;
+
+  @IsNumber()
+  @IsOptional()
+  total_jam_telat?: number;
 }

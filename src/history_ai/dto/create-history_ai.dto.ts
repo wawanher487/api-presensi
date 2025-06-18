@@ -48,6 +48,31 @@ export class CreateHistoryAiDto {
   @IsString()
   @IsOptional()
   process?: string;
+
+  @IsString()
+  @IsOptional()
+  jam_masuk: string;
+
+  @IsString()
+  @IsOptional()
+  jam_keluar: string;
+
+  @IsString()
+  @IsOptional()
+  jam_masuk_actual: string;
+
+  @IsString()
+  @IsOptional()
+  jam_keluar_actual: string;
+
+  @IsNumber()
+  @IsOptional()
+  jumlah_telat: number;
+
+  @IsNumber()
+  @IsOptional()
+  total_jam_telat: number;
+
 }
 
 export class HistoryAiResponse {
@@ -88,6 +113,26 @@ export class HistoryAiResponse {
 
   @IsString()
   process?: string;
+
+  @IsString()
+  jam_masuk?: string;
+
+  @IsString()
+  jam_keluar?: string;
+
+  @IsString()
+  jam_masuk_actual?: string;
+
+  @IsString()
+  jam_keluar_actual?: string;
+
+  @IsOptional()
+  @IsNumber()
+  jumlah_telat?: number;
+
+  @IsOptional()
+  @IsNumber()
+  total_jam_telat?: number;
 
   createdAt?: Date;
 
