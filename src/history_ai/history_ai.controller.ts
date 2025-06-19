@@ -38,7 +38,7 @@ export class HistoryAiController {
     } catch (error) {
       throw new HttpException(
         {
-          succes: false,
+          success: false,
           message: error.message,
           statuscode: HttpStatus.BAD_REQUEST,
         },
@@ -102,7 +102,7 @@ export class HistoryAiController {
   async update(
     @Param('id') id: string,
     @Body() updateHistoryAiDto: UpdateHistoryAiDto,
-  ):Promise<WebResponse<HistoryAiResponse>> {
+  ): Promise<WebResponse<HistoryAiResponse>> {
     try {
       const result = await this.historyAiService.updateById(
         id,
@@ -124,7 +124,6 @@ export class HistoryAiController {
         error.status || HttpStatus.BAD_REQUEST,
       );
     }
-    
   }
 
   @Delete('/delete/:id')

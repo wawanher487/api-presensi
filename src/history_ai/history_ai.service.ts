@@ -16,7 +16,7 @@ export class HistoryAiService {
   constructor(
     @InjectModel(HistoryAi.name, 'SECONDARY_DB')
     private readonly historyAiModel: Model<HistoryAiDocument>,
-  ) { }
+  ) {}
 
   private mapToHistoryAiResponse(historyAi: HistoryAiDocument) {
     return {
@@ -62,7 +62,8 @@ export class HistoryAiService {
       jam_masuk_actual:
         createHistoryAiDto.jam_masuk_actual || dayjs().format('HH:mm:ss'),
       jam_keluar: createHistoryAiDto.jam_keluar || '17:00:00',
-      jam_keluar_actual: createHistoryAiDto.jam_keluar_actual || dayjs().format('HH:mm:ss'),
+      jam_keluar_actual:
+        createHistoryAiDto.jam_keluar_actual || dayjs().format('HH:mm:ss'),
       jumlah_telat: createHistoryAiDto.jumlah_telat || 0,
       total_jam_telat: createHistoryAiDto.total_jam_telat || 0,
     });

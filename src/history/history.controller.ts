@@ -35,7 +35,7 @@ export class HistoryController {
     } catch (error) {
       throw new HttpException(
         {
-          succes: false,
+          success: false,
           message: error.message,
           statuscode: error.status || HttpStatus.INTERNAL_SERVER_ERROR,
         },
