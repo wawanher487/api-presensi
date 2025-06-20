@@ -207,6 +207,43 @@ export class HistoryAiService {
     }
     return `Data dengan id ${id} berhasil dihapus.`;
   }
+
+  async findRangeByTanggal(query: Query): Promise<HistoryAiResponse[]> {
+    const { start, end } = query;
+
+    if (!start || !end) {
+      throw new HttpException('Parameter start dan end wajib diisi', 400);
+    }
+
+    // Parsing tanggal start dan end: format DD-MM-YYYY
+    const [d1, m1, y1] = (start as string).split('-').map(Number);
+    const [d2, m2, y2] = (end as string).split('-').map(Number);
+
+    if (!d1 || !m1 || !y1 || !d2 || !m2 || !y2) {
+      throw new HttpException('Format tanggal harus DD-MM-YYYY', 400);
+    }
+
+    const startDate = new Date(y1, m1 - 1, d1, 0, 0, 0);
+    const endDate = new Date(y2, m2 - 1, d2, 23, 59, 59);
+
+    const startTimestamp = Math.floor(startDate.getTime() / 1000);
+    const endTimestamp = Math.floor(endDate.getTime() / 1000);
+
+    const data = await this.historyAiModel
+      .find({
+        timestamp: { $gte: startTimestamp, $lte: endTimestamp },
+      })
+      .sort({ timestamp: 1 });
+
+    if (!data || data.length === 0) {
+      throw new HttpException(
+        'Data tidak ditemukan pada rentang tanggal ini.',
+        404,
+      );
+    }
+
+    return data.map(this.mapToHistoryAiResponse);
+  }
 }
 
 //untuk generate random number as string

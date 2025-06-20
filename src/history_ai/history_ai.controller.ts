@@ -147,4 +147,26 @@ export class HistoryAiController {
       );
     }
   }
+
+  @Get('/range')
+  async getRange(@Query() query): Promise<WebResponse<HistoryAiResponse[]>> {
+    try {
+      const result = await this.historyAiService.findRangeByTanggal(query);
+      return {
+        success: true,
+        message: 'Data berhasil diambil berdasarkan rentang tanggal',
+        data: result,
+        statuscode: HttpStatus.OK,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          statuscode: error.status || HttpStatus.BAD_REQUEST,
+        },
+        error.status || HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }
