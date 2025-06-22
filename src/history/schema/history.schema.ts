@@ -10,7 +10,7 @@ export class History extends Document {
   timestamp: number;
 
   // nama file gambar
-  @Prop()
+  @Prop({ name: 'gambar' })
   value: string;
 
   @Prop()

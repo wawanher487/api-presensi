@@ -244,6 +244,80 @@ export class HistoryAiService {
 
     return data.map(this.mapToHistoryAiResponse);
   }
+
+  async findTop5EarlyByTanggal(query: Query): Promise<HistoryAiResponse[]> {
+    const { tanggal } = query;
+
+    if (!tanggal || typeof tanggal !== 'string') {
+      throw new HttpException(
+        'Parameter tanggal wajib diisi dalam format DD-MM-YYYY',
+        400,
+      );
+    }
+
+    const [day, month, year] = tanggal.split('-').map(Number);
+    if (!day || !month || !year) {
+      throw new HttpException('Format tanggal harus DD-MM-YYYY', 400);
+    }
+
+    const startDate = new Date(year, month - 1, day, 0, 0, 0);
+    const endDate = new Date(year, month - 1, day, 23, 59, 59);
+    const startTimestamp = Math.floor(startDate.getTime() / 1000);
+    const endTimestamp = Math.floor(endDate.getTime() / 1000);
+
+    const result = await this.historyAiModel
+      .find({
+        timestamp: { $gte: startTimestamp, $lte: endTimestamp },
+        jam_masuk_actual: { $ne: null },
+      })
+      .sort({ jam_masuk_actual: 1 })
+      .limit(5)
+      .exec();
+
+    if (!result || result.length === 0) {
+      throw new HttpException(
+        `Tidak ada data absensi pada tanggal ${tanggal}`,
+        404,
+      );
+    }
+
+    return result.map(this.mapToHistoryAiResponse);
+  }
+
+  async getKehadiranHarian() {
+    const startOfToday = dayjs().startOf('day').unix(); // 00:00 hari ini
+    const endOfToday = dayjs().endOf('day').unix(); // 23:59 hari ini
+
+    const dataHariIni = await this.historyAiModel.find({
+      timestamp: {
+        $gte: startOfToday,
+        $lte: endOfToday,
+      },
+    });
+
+    // Hitung berdasarkan status_absen dan keterlambatan
+    let totalHadir = 0;
+    let totalTidakHadir = 0;
+    let totalTelat = 0;
+
+    for (const data of dataHariIni) {
+      if (data.status_absen === 'hadir') {
+        totalHadir++;
+        if (data.jumlah_telat > 0) {
+          totalTelat++;
+        }
+      } else if (data.status_absen === 'tidak hadir') {
+        totalTidakHadir++;
+      }
+    }
+
+    return {
+      tanggal: dayjs().format('DD-MM-YYYY'),
+      totalHadir,
+      totalTelat,
+      totalTidakHadir,
+    };
+  }
 }
 
 //untuk generate random number as string

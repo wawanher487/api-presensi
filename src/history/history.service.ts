@@ -6,6 +6,7 @@ import { CreateHistoryDto, HistoryResponse } from './dto/create_history.dto';
 import { Query } from 'express-serve-static-core';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateHistoryDto } from './dto/update_history.dto';
+import dayjs = require('dayjs');
 
 @Injectable()
 export class HistoryService {
@@ -31,6 +32,10 @@ export class HistoryService {
     const history = await this.model.create({
       ...createHistoryDto,
       guid: uuidv4(),
+      value: createHistoryDto.gambar || 'CAM-P0721-gGB3H0z2z.jpg',
+      datetime:
+        createHistoryDto.datetime || dayjs().format('DD-MM-YYYY HH:mm:ss'),
+      timestamp: createHistoryDto.timestamp || Math.floor(Date.now() / 1000),
     });
     return this.mapToHistoryResponse(history);
   }
@@ -55,9 +60,6 @@ export class HistoryService {
     //filter berdasarkan guid_device, unit, dan tanggal
     if (query.guid_device) {
       filter.guid_device = query.guid_device;
-    }
-    if (query.unit) {
-      filter.unit = query.unit;
     }
     if (query.tanggal && typeof query.tanggal === 'string') {
       //parse tanggal dari query format "DD-MM-YYYY"
@@ -101,7 +103,10 @@ export class HistoryService {
       .exec();
 
     if (!history || history.length === 0) {
-      throw new HttpException('Data berdasarkan filter tersebut tidak ditemukan.', 404);
+      throw new HttpException(
+        'Data berdasarkan filter tersebut tidak ditemukan.',
+        404,
+      );
     }
 
     const mapHistory = history.map(this.mapToHistoryResponse);

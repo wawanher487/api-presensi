@@ -8,15 +8,15 @@ import {
 } from 'class-validator';
 
 export class CreateHistoryDto {
-  @IsNotEmpty()
   @IsString()
+  @IsOptional()
   datetime: string;
 
   @IsNumber()
   @IsOptional()
   timestamp: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   gambar: string;
 

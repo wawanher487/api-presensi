@@ -169,4 +169,50 @@ export class HistoryAiController {
       );
     }
   }
+
+  @Get('/top_erly')
+  async getTopErly(
+    @Query() query: ExpressQuery,
+  ): Promise<WebResponse<HistoryAiResponse[]>> {
+    try {
+      const result = await this.historyAiService.findTop5EarlyByTanggal(query);
+      return {
+        success: true,
+        message: 'Data berhasil diambil',
+        data: result,
+        statuscode: HttpStatus.OK,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          statuscode: error.status || HttpStatus.BAD_REQUEST,
+        },
+        error.status || HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Get('/status_kehadiran')
+  async getKehadiran() {
+    try {
+      const result = await this.historyAiService.getKehadiranHarian();
+      return {
+        success: true,
+        message: 'Data kehadiran berhasil diambil',
+        data: result,
+        statuscode: HttpStatus.OK,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          statuscode: error.status || HttpStatus.BAD_REQUEST,
+        },
+        error.status || HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }
