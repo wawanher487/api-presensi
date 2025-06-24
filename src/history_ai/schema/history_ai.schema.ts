@@ -19,7 +19,6 @@ export class HistoryAi {
 
   @Prop({
     required: true,
-    enum: ['hadir', 'terlambat', 'pulang', 'tidak hadir', 'izin', 'sakit'],
   })
   status_absen: string;
 

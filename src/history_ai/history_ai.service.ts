@@ -303,9 +303,8 @@ export class HistoryAiService {
     for (const data of dataHariIni) {
       if (data.status_absen === 'hadir') {
         totalHadir++;
-        if (data.jumlah_telat > 0) {
-          totalTelat++;
-        }
+      } else if (data.status_absen === 'terlambat') {
+        totalTelat++;
       } else if (data.status_absen === 'tidak hadir') {
         totalTidakHadir++;
       }
