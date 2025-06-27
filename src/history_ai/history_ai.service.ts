@@ -265,7 +265,7 @@ export class HistoryAiService {
       .find({
         timestamp: { $gte: startTimestamp, $lte: endTimestamp },
         jam_masuk_actual: { $ne: null },
-        userGuid: { $nin: ['unknown', 'error'] },
+        nama: { $nin: ['unknown', 'error'] },
       })
       .sort({ jam_masuk_actual: 1 })
       .limit(5)
