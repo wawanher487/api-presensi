@@ -59,11 +59,7 @@ export class HistoryAiService {
       timestamp: createHistoryAiDto.timestamp || Math.floor(Date.now() / 1000),
       unit: createHistoryAiDto.unit || 'tamu',
       jam_masuk: createHistoryAiDto.jam_masuk || '08:00:00',
-      jam_masuk_actual:
-        createHistoryAiDto.jam_masuk_actual || dayjs().format('HH:mm:ss'),
       jam_keluar: createHistoryAiDto.jam_keluar || '17:00:00',
-      jam_keluar_actual:
-        createHistoryAiDto.jam_keluar_actual || dayjs().format('HH:mm:ss'),
       jumlah_telat: createHistoryAiDto.jumlah_telat || 0,
       total_jam_telat: createHistoryAiDto.total_jam_telat || 0,
     });
@@ -269,6 +265,7 @@ export class HistoryAiService {
       .find({
         timestamp: { $gte: startTimestamp, $lte: endTimestamp },
         jam_masuk_actual: { $ne: null },
+        userGuid: { $nin: ['unknown', 'error'] },
       })
       .sort({ jam_masuk_actual: 1 })
       .limit(5)
@@ -294,6 +291,8 @@ export class HistoryAiService {
         $lte: endOfToday,
       },
     });
+
+   
 
     // Hitung berdasarkan status_absen dan keterlambatan
     let totalHadir = 0;
