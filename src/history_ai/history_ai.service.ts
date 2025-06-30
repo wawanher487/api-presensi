@@ -47,9 +47,33 @@ export class HistoryAiService {
   async create(
     createHistoryAiDto: CreateHistoryAiDto,
   ): Promise<HistoryAiResponse> {
+    const tanggalHariIni = dayjs(
+      createHistoryAiDto.datetime,
+      'DD-MM-YYYY HH:mm:ss',
+    ).format('YYYY-MM-DD');
+    const userGuid = createHistoryAiDto.guid;
+    const statusAbsen = createHistoryAiDto.status_absen;
+
+    // Cek apakah sudah ada absensi dengan status yang sama hari ini
+    const existing = await this.historyAiModel.findOne({
+      userGuid: userGuid,
+      status_absen: statusAbsen,
+      datetime: {
+        $regex: new RegExp(`^${dayjs(tanggalHariIni).format('DD-MM-YYYY')}`), // cari berdasarkan tanggal string
+      },
+    });
+
+    if (existing) {
+      throw new HttpException(
+        `Karyawan sudah melakukan absensi '${statusAbsen}' pada tanggal ini.`,
+        400,
+      );
+    }
+
+    // 👇 Simpan jika belum ada
     const historyAi = await this.historyAiModel.create({
       ...createHistoryAiDto,
-      userGuid: createHistoryAiDto.guid || uuidv4(),
+      userGuid: userGuid,
       guid: createHistoryAiDto.guid || uuidv4(),
       guid_device: createHistoryAiDto.guid_device || 'CAM-P0721',
       process: createHistoryAiDto.process || 'done',
@@ -67,6 +91,7 @@ export class HistoryAiService {
       jumlah_telat: createHistoryAiDto.jumlah_telat || 0,
       total_jam_telat: createHistoryAiDto.total_jam_telat || 0,
     });
+
     return this.mapToHistoryAiResponse(historyAi);
   }
 
@@ -269,6 +294,7 @@ export class HistoryAiService {
       .find({
         timestamp: { $gte: startTimestamp, $lte: endTimestamp },
         jam_masuk_actual: { $ne: null },
+        userGuid: { $nin: ['unknown', 'error'] },
       })
       .sort({ jam_masuk_actual: 1 })
       .limit(5)
