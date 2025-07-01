@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsDate,
+  IsDateString,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class CreateKaryawanDto {
   @IsString()
@@ -9,13 +18,11 @@ export class CreateKaryawanDto {
   @IsOptional()
   gender: string;
 
-  @IsString()
   @IsOptional()
-  gambar: string;
+  gambar?: string;
 
-  @IsString()
   @IsOptional()
-  userGuid: string;
+  userGuid?: string;
 
   @IsString()
   @IsOptional()
@@ -29,11 +36,8 @@ export class CreateKaryawanDto {
   @IsOptional()
   jabatan: string;
 
-  @IsString()
+  @IsDateString() 
   @IsOptional()
-  @Matches(/^\d{2}-\d{2}-\d{4}$/, {
-    message: 'birthDate harus dalam format DD-MM-YYYY',
-  })
   birthDate: string;
 
   @IsString()
@@ -53,6 +57,7 @@ export class CreateKaryawanDto {
   unit: string;
 
   @IsNumber()
+  @Type(() => Number)
   @IsOptional()
   gajiHarian: number;
 
@@ -85,8 +90,8 @@ export class KaryawanResponse {
   @IsString()
   jabatan: string;
 
-  @IsString()
-  birthDate: string;
+  @IsDate()
+  birthDate: Date | null;; 
 
   @IsString()
   phoneNumber: string;

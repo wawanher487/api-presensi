@@ -215,4 +215,27 @@ export class HistoryAiController {
       );
     }
   }
+
+  @Get('/riwayat_bulanan')
+  async getKehadiranBulananByUser(@Query() query: ExpressQuery) {
+    try {
+      const result =
+        await this.historyAiService.getKehadiranBulananByUser(query);
+      return {
+        success: true,
+        message: 'Data kehadiran berhasil diambil',
+        data: result,
+        statuscode: HttpStatus.OK,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: error.message,
+          statuscode: error.status || HttpStatus.BAD_REQUEST,
+        },
+        error.status || HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }

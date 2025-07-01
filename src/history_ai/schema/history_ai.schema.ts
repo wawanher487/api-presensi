@@ -22,7 +22,7 @@ export class HistoryAi {
   })
   status_absen: string;
 
-  @Prop({ required: true })
+  @Prop()
   userGuid: string;
 
   @Prop({ required: true })

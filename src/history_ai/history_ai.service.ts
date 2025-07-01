@@ -51,7 +51,7 @@ export class HistoryAiService {
       createHistoryAiDto.datetime,
       'DD-MM-YYYY HH:mm:ss',
     ).format('YYYY-MM-DD');
-    const userGuid = createHistoryAiDto.guid;
+    const userGuid = createHistoryAiDto.userGuid;
     const statusAbsen = createHistoryAiDto.status_absen;
 
     // Cek apakah sudah ada absensi dengan status yang sama hari ini
@@ -81,7 +81,7 @@ export class HistoryAiService {
       datetime:
         createHistoryAiDto.datetime || dayjs().format('DD-MM-YYYY HH:mm:ss'),
       timestamp: createHistoryAiDto.timestamp || Math.floor(Date.now() / 1000),
-      unit: createHistoryAiDto.unit || 'tamu',
+      unit: createHistoryAiDto.unit || 'magang',
       jam_masuk: createHistoryAiDto.jam_masuk || '08:00:00',
       jam_keluar: createHistoryAiDto.jam_keluar || '17:00:00',
       jumlah_telat: createHistoryAiDto.jumlah_telat || 0,
@@ -290,7 +290,7 @@ export class HistoryAiService {
       .find({
         timestamp: { $gte: startTimestamp, $lte: endTimestamp },
         jam_masuk_actual: { $ne: null },
-         nama: { $nin: ['unknown', 'error'] },
+        nama: { $nin: ['unknown', 'error'] },
       })
       .sort({ jam_masuk_actual: 1 })
       .limit(5)
@@ -317,8 +317,6 @@ export class HistoryAiService {
       },
     });
 
-   
-
     // Hitung berdasarkan status_absen dan keterlambatan
     let totalHadir = 0;
     let totalTidakHadir = 0;
@@ -340,6 +338,50 @@ export class HistoryAiService {
       totalTelat,
       totalTidakHadir,
     };
+  }
+
+  async getKehadiranBulananByUser(query: Query): Promise<HistoryAiResponse[]> {
+    const { userGuid, bulan, tahun } = query;
+
+    if (!userGuid || !bulan || !tahun) {
+      throw new HttpException(
+        'Parameter userGuid, bulan, dan tahun wajib diisi.',
+        400,
+      );
+    }
+
+    const bulanAngka = parseInt(bulan as string);
+    const tahunAngka = parseInt(tahun as string);
+
+    if (isNaN(bulanAngka) || isNaN(tahunAngka)) {
+      throw new HttpException('Bulan dan tahun harus berupa angka.', 400);
+    }
+
+    // 1. Buat rentang waktu dari awal sampai akhir bulan
+    const startDate = dayjs(`${tahunAngka}-${bulanAngka}-01`);
+    const endDate = startDate.endOf('month');
+
+    const startTimestamp = startDate.startOf('day').unix();
+    const endTimestamp = endDate.endOf('day').unix();
+
+    const data = await this.historyAiModel
+      .find({
+        userGuid,
+        timestamp: {
+          $gte: startTimestamp,
+          $lte: endTimestamp,
+        },
+      })
+      .sort({ timestamp: 1 });
+
+    if (!data || data.length === 0) {
+      throw new HttpException(
+        `Tidak ditemukan riwayat absensi untuk userGuid ${userGuid} pada bulan ${bulan}/${tahun}.`,
+        404,
+      );
+    }
+
+    return data.map(this.mapToHistoryAiResponse);
   }
 }
 

@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsDateString,
   IsNumber,
   IsOptional,
   IsString,
@@ -35,10 +36,8 @@ export class UpdateKaryawanDto {
   @IsOptional()
   jabatan?: string;
 
+  @IsDateString()
   @IsOptional()
-  @Matches(/^\d{2}-\d{2}-\d{4}$/, {
-    message: 'birthDate harus dalam format DD-MM-YYYY',
-  })
   birthDate?: string;
 
   @IsString()

@@ -10,6 +10,7 @@ import {
   HttpException,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { KaryawanService } from './karyawan.service';
 import { CreateKaryawanDto, KaryawanResponse } from './dto/create-karyawan.dto';
@@ -61,9 +62,13 @@ export class KaryawanController {
   }
 
   @Get('get')
-  async findAll(): Promise<WebResponse<KaryawanResponse[]>> {
+  async findAll(
+    @Query('nama') nama?: string,
+    @Query('nip') nip?: string,
+    @Query('unit') unit?: string,
+  ): Promise<WebResponse<KaryawanResponse[]>> {
     try {
-      const result = await this.karyawanService.findAll();
+      const result = await this.karyawanService.findAll({ nama, nip, unit });
       return {
         success: true,
         message: 'Data berhasil disimpan',

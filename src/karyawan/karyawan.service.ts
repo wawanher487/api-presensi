@@ -29,7 +29,7 @@ export class KaryawanService {
       address: karyawan.address,
       jabatan: karyawan.jabatan,
       nip: karyawan.nip,
-      birthDate: karyawan.birthDate,
+      birthDate: karyawan.birthDate ? new Date(karyawan.birthDate) : null,
       phoneNumber: karyawan.phoneNumber,
       role: karyawan.role,
       guidUnit: karyawan.guidUnit,
@@ -118,8 +118,8 @@ export class KaryawanService {
       nama: createKaryawanDto.nama || 'budi',
       gender: createKaryawanDto.gender || 'L',
       gambar: gambarPath || '/presensi/default.jpg',
-      address: createKaryawanDto.address || 'bandung',
-      jabatan: createKaryawanDto.jabatan || 'pegawai junior',
+      address: createKaryawanDto.address || 'belum diisi',
+      jabatan: createKaryawanDto.jabatan || 'belum diisi',
       nip: createKaryawanDto.nip || this.generateRandomNIP(),
       birthDate: createKaryawanDto.birthDate || '',
       phoneNumber: createKaryawanDto.phoneNumber || '323424234',
@@ -146,8 +146,27 @@ export class KaryawanService {
     return this.mapToKaryawanResponse(karyawan);
   }
 
-  async findAll(): Promise<KaryawanResponse[]> {
-    const karyawans = await this.karyawanModel.find().exec();
+  // karyawan.service.ts
+  async findAll(filterDto?: {
+    nama?: string;
+    nip?: string;
+    unit?: string;
+  }): Promise<KaryawanResponse[]> {
+    const query: any = {};
+
+    if (filterDto?.nama) {
+      query.nama = { $regex: filterDto.nama, $options: 'i' }; // case-insensitive
+    }
+
+    if (filterDto?.nip) {
+      query.nip = { $regex: filterDto.nip, $options: 'i' };
+    }
+
+    if (filterDto?.unit) {
+      query.unit = { $regex: filterDto.unit, $options: 'i' };
+    }
+
+    const karyawans = await this.karyawanModel.find(query).exec();
     return karyawans.map((karyawan) => this.mapToKaryawanResponse(karyawan));
   }
 

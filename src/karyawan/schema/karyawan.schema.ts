@@ -15,10 +15,10 @@ export class Karyawan {
   @Prop({ required: true, unique: true, default: uuidv4 })
   userGuid: string;
 
-  @Prop({required: true})
+  @Prop({ required: true })
   nip: string;
 
-  @Prop({required: true})
+  @Prop({ required: true })
   jabatan: string;
 
   @Prop({ required: true })
@@ -27,8 +27,8 @@ export class Karyawan {
   @Prop({ required: true })
   gender: string;
 
-  @Prop({ required: true })
-  birthDate: string;
+  @Prop()
+  birthDate: Date;
 
   @Prop({ required: true })
   phoneNumber: string;
