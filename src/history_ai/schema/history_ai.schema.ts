@@ -49,10 +49,10 @@ export class HistoryAi {
   @Prop()
   jam_keluar: string;
 
-  @Prop()
+  @Prop({ type: String, default: null })
   jam_masuk_actual: string;
 
-  @Prop()
+  @Prop({ type: String, default: null })
   jam_keluar_actual: string;
 
   @Prop({ default: 0 })

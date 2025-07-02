@@ -6,7 +6,7 @@ import { CreateHistoryDto, HistoryResponse } from './dto/create_history.dto';
 import { Query } from 'express-serve-static-core';
 import { v4 as uuidv4 } from 'uuid';
 import { UpdateHistoryDto } from './dto/update_history.dto';
-import dayjs = require('dayjs');
+import dayjs from '../config/dayjs.config';
 
 @Injectable()
 export class HistoryService {
@@ -29,13 +29,23 @@ export class HistoryService {
   }
 
   async create(createHistoryDto: CreateHistoryDto): Promise<HistoryResponse> {
+    // Konversi datetime ke objek dayjs dan timestamp berdasarkan Asia/Jakarta
+    const datetimeWIB = dayjs.tz(
+      createHistoryDto.datetime,
+      'DD-MM-YYYY HH:mm:ss',
+      'Asia/Jakarta',
+    );
+
+    const timestamp = createHistoryDto.timestamp || datetimeWIB.unix();
+
     const history = await this.model.create({
       ...createHistoryDto,
       guid: uuidv4(),
       value: createHistoryDto.gambar || 'CAM-P0721-gGB3H0z2z.jpg',
       datetime:
-        createHistoryDto.datetime || dayjs().format('DD-MM-YYYY HH:mm:ss'),
-      timestamp: createHistoryDto.timestamp || Math.floor(Date.now() / 1000),
+        createHistoryDto.datetime ||
+        datetimeWIB.format('DD-MM-YYYY HH:mm:ss'),
+      timestamp: timestamp,
     });
     return this.mapToHistoryResponse(history);
   }

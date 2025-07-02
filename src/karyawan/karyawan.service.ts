@@ -6,7 +6,6 @@ import { isValidObjectId, Model } from 'mongoose';
 import { KaryawanDocument } from './schema/karyawan.schema';
 import { v4 as uuidv4 } from 'uuid';
 import * as ftp from 'basic-ftp';
-import * as dayjs from 'dayjs';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as fs from 'fs';

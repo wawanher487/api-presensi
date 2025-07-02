@@ -6,16 +6,16 @@ export class CreateHistoryAiDto {
   nama: string;
 
   @IsString()
-  @IsNotEmpty()
-  mood: string;
+  @IsOptional()
+  mood?: string;
 
   @IsNumber()
   @IsOptional()
   keletihan?: number;
 
   @IsString()
-  @IsNotEmpty()
-  status_absen: string;
+  @IsOptional()
+  status_absen?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -39,11 +39,11 @@ export class CreateHistoryAiDto {
 
   @IsNumber()
   @IsOptional()
-  timestamp: number;
+  timestamp?: number;
 
   @IsString()
-  @IsNotEmpty()
-  unit: string;
+  @IsOptional()
+  unit?: string;
 
   @IsString()
   @IsOptional()
@@ -59,11 +59,11 @@ export class CreateHistoryAiDto {
 
   @IsString()
   @IsOptional()
-  jam_masuk_actual: string;
+  jam_masuk_actual?: string;
 
   @IsString()
   @IsOptional()
-  jam_keluar_actual: string;
+  jam_keluar_actual?: string;
 
   @IsNumber()
   @IsOptional()
@@ -72,7 +72,6 @@ export class CreateHistoryAiDto {
   @IsNumber()
   @IsOptional()
   total_jam_telat: number;
-
 }
 
 export class HistoryAiResponse {
