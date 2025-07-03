@@ -120,7 +120,7 @@ export class KaryawanService {
       address: createKaryawanDto.address || 'belum diisi',
       jabatan: createKaryawanDto.jabatan || 'belum diisi',
       nip: createKaryawanDto.nip || this.generateRandomNIP(),
-      birthDate: createKaryawanDto.birthDate || '',
+      birthDate: createKaryawanDto.birthDate || undefined,
       phoneNumber: createKaryawanDto.phoneNumber || '323424234',
       role: createKaryawanDto.role || 'user',
       guidUnit: createKaryawanDto.guidUnit || uuidv4(),

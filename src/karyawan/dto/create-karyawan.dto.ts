@@ -6,7 +6,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Matches,
 } from 'class-validator';
 
 export class CreateKaryawanDto {

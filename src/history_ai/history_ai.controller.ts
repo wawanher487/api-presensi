@@ -171,7 +171,7 @@ export class HistoryAiController {
   }
 
   @Get('/top_erly')
-  async getTopErly(
+  async getAllDashboard(
     @Query() query: ExpressQuery,
   ): Promise<WebResponse<HistoryAiResponse[]>> {
     try {

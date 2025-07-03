@@ -30,11 +30,20 @@ export class HistoryService {
 
   async create(createHistoryDto: CreateHistoryDto): Promise<HistoryResponse> {
     // Konversi datetime ke objek dayjs dan timestamp berdasarkan Asia/Jakarta
-    const datetimeWIB = dayjs.tz(
-      createHistoryDto.datetime,
-      'DD-MM-YYYY HH:mm:ss',
-      'Asia/Jakarta',
-    );
+    let datetimeWIB = dayjs(createHistoryDto.datetime).tz('Asia/Jakarta');
+
+    if (!datetimeWIB.isValid()) {
+      // Coba parse pakai format fallback (misal dari frontend lama)
+      datetimeWIB = dayjs.tz(
+        createHistoryDto.datetime,
+        'DD-MM-YYYY HH:mm:ss',
+        'Asia/Jakarta',
+      );
+    }
+
+    if (!datetimeWIB.isValid()) {
+      throw new HttpException('Format datetime tidak valid.', 400);
+    }
 
     const timestamp = createHistoryDto.timestamp || datetimeWIB.unix();
 
@@ -42,9 +51,7 @@ export class HistoryService {
       ...createHistoryDto,
       guid: uuidv4(),
       value: createHistoryDto.gambar || 'CAM-P0721-gGB3H0z2z.jpg',
-      datetime:
-        createHistoryDto.datetime ||
-        datetimeWIB.format('DD-MM-YYYY HH:mm:ss'),
+      datetime: datetimeWIB.toISOString(),
       timestamp: timestamp,
     });
     return this.mapToHistoryResponse(history);

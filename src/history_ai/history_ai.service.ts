@@ -49,22 +49,20 @@ export class HistoryAiService {
   ): Promise<HistoryAiResponse> {
     const userGuid = createHistoryAiDto.userGuid;
 
-    if (
-      !createHistoryAiDto.datetime ||
-      !dayjs(createHistoryAiDto.datetime, 'DD-MM-YYYY HH:mm:ss', true).isValid()
-    ) {
-      throw new HttpException(
-        'Format datetime tidak valid. Gunakan format: DD-MM-YYYY HH:mm:ss',
-        400,
-      );
-    }
+    let datetimeParsed: dayjs.Dayjs;
 
-    // Parse dengan format strict
-    const datetimeParsed = dayjs(
-      createHistoryAiDto.datetime,
-      'DD-MM-YYYY HH:mm:ss',
-      true,
-    );
+    if (!createHistoryAiDto.datetime) {
+      // Pakai waktu sekarang jika tidak ada input datetime
+      datetimeParsed = dayjs(); // otomatis WIB karena sudah di-set di config
+    } else {
+      datetimeParsed = dayjs(createHistoryAiDto.datetime);
+      if (!datetimeParsed.isValid()) {
+        throw new HttpException(
+          'Format datetime tidak valid. Gunakan ISO 8601 seperti "2025-07-03T14:10:30+07:00"',
+          400,
+        );
+      }
+    }
 
     // Tambahkan zona waktu Asia/Jakarta
     const datetimeWIB = datetimeParsed.tz('Asia/Jakarta');
@@ -189,7 +187,7 @@ export class HistoryAiService {
       guid_device: createHistoryAiDto.guid_device || 'CAM-P0721',
       process: createHistoryAiDto.process || 'done',
       keletihan: createHistoryAiDto.keletihan || generateRandomNumber(),
-      datetime: datetimeWIB.format('DD-MM-YYYY HH:mm:ss'),
+      datetime: datetimeWIB.toISOString(),
       timestamp,
       unit: createHistoryAiDto.unit || 'magang',
       jam_masuk_actual: jamMasukActual,
@@ -497,7 +495,7 @@ export class HistoryAiService {
 }
 
 function isValidJamFormat(jam: string): boolean {
-  return /^\d{2}:\d{2}:\d{2}$/.test(jam);
+  return /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(jam);
 }
 
 //untuk generate random number as string
