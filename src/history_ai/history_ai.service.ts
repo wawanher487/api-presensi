@@ -378,7 +378,7 @@ export class HistoryAiService {
     return data.map(this.mapToHistoryAiResponse);
   }
 
-  async findTop5EarlyByTanggal(query: Query): Promise<HistoryAiResponse[]> {
+  async findAllByTanggal(query: Query): Promise<HistoryAiResponse[]> {
     const { tanggal } = query;
 
     if (!tanggal || typeof tanggal !== 'string') {
@@ -405,7 +405,6 @@ export class HistoryAiService {
         nama: { $nin: ['unknown', 'error'] },
       })
       .sort({ jam_masuk_actual: 1 })
-      .limit(5)
       .exec();
 
     if (!result || result.length === 0) {

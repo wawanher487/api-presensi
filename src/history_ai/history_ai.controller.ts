@@ -175,7 +175,7 @@ export class HistoryAiController {
     @Query() query: ExpressQuery,
   ): Promise<WebResponse<HistoryAiResponse[]>> {
     try {
-      const result = await this.historyAiService.findTop5EarlyByTanggal(query);
+      const result = await this.historyAiService.findAllByTanggal(query);
       return {
         success: true,
         message: 'Data berhasil diambil',
