@@ -63,12 +63,12 @@ export class KaryawanController {
 
   @Get('get')
   async findAll(
-    @Query('nama') nama?: string,
+    @Query('name') name?: string,
     @Query('nip') nip?: string,
     @Query('unit') unit?: string,
   ): Promise<WebResponse<KaryawanResponse[]>> {
     try {
-      const result = await this.karyawanService.findAll({ nama, nip, unit });
+      const result = await this.karyawanService.findAll({ name, nip, unit });
       return {
         success: true,
         message: 'Data berhasil disimpan',

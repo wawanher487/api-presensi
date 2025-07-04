@@ -3,7 +3,7 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 export class UpdateHistoryAiDto {
   @IsString()
   @IsOptional()
-  nama?: string;
+  name?: string;
 
   @IsString()
   @IsOptional()

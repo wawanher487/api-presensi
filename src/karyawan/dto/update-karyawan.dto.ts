@@ -10,7 +10,7 @@ import {
 export class UpdateKaryawanDto {
   @IsString()
   @IsOptional()
-  nama?: string;
+  name?: string;
 
   @IsString()
   @IsOptional()
@@ -22,7 +22,7 @@ export class UpdateKaryawanDto {
 
   @IsString()
   @IsOptional()
-  userGuid?: string;
+  guid?: string;
 
   @IsString()
   @IsOptional()

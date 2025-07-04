@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 export class CreateHistoryAiDto {
   @IsString()
   @IsNotEmpty()
-  nama: string;
+  name: string;
 
   @IsString()
   @IsOptional()
@@ -78,7 +78,7 @@ export class HistoryAiResponse {
   id: string;
 
   @IsString()
-  nama: string;
+  name: string;
 
   @IsString()
   mood?: string;

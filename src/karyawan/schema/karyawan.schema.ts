@@ -7,13 +7,13 @@ export type KaryawanDocument = Karyawan & Document;
 @Schema({ timestamps: true, collection: 'karyawan' })
 export class Karyawan {
   @Prop({ required: true })
-  nama: string;
+  name: string;
 
   @Prop({ default: '' })
   gambar: string;
 
-  @Prop({ required: true, unique: true, default: uuidv4 })
-  userGuid: string;
+  @Prop({ required: true, unique: true, default: () => uuidv4() })
+  guid: string;
 
   @Prop({ required: true })
   nip: string;

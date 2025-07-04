@@ -11,7 +11,7 @@ import {
 export class CreateKaryawanDto {
   @IsString()
   @IsOptional()
-  nama: string;
+  name: string;
 
   @IsString()
   @IsOptional()
@@ -21,7 +21,7 @@ export class CreateKaryawanDto {
   gambar?: string;
 
   @IsOptional()
-  userGuid?: string;
+  guid?: string;
 
   @IsString()
   @IsOptional()
@@ -69,7 +69,7 @@ export class KaryawanResponse {
   id: string;
 
   @IsString()
-  nama: string;
+  name: string;
 
   @IsString()
   gender: string;
@@ -78,7 +78,7 @@ export class KaryawanResponse {
   gambar?: string;
 
   @IsString()
-  userGuid: string;
+  guid: string;
 
   @IsString()
   address: string;

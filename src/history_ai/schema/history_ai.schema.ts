@@ -6,7 +6,7 @@ export type HistoryAiDocument = HistoryAi & Document;
 @Schema({ timestamps: true, collection: 'history_ai' })
 export class HistoryAi {
   @Prop({ required: true })
-  nama: string;
+  name: string;
 
   @Prop({ required: true })
   gambar: string;

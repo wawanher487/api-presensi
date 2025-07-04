@@ -21,10 +21,10 @@ export class KaryawanService {
   private mapToKaryawanResponse(karyawan: KaryawanDocument) {
     return {
       id: karyawan.id.toString(),
-      nama: karyawan.nama,
+      name: karyawan.name,
       gender: karyawan.gender,
       gambar: karyawan.gambar,
-      userGuid: karyawan.userGuid,
+      guid: karyawan.guid,
       address: karyawan.address,
       jabatan: karyawan.jabatan,
       nip: karyawan.nip,
@@ -75,19 +75,19 @@ export class KaryawanService {
     }
   }
 
-  private async sendToAIService(data: {
-    userGuid: string;
-    nama: string;
-    imagePath: string;
-  }) {
-    try {
-      const url = this.configService.get<string>('AI_URL') + '/train';
-      await axios.post(url, data);
-      console.log('Data berhasil dikirim ke AI Service');
-    } catch (error) {
-      console.error('Gagal kirim ke AI Service:', error.message);
-    }
-  }
+  // private async sendToAIService(data: {
+  //   guid: string;
+  //   name: string;
+  //   imagePath: string;
+  // }) {
+  //   try {
+  //     const url = this.configService.get<string>('AI_URL') + '/train';
+  //     await axios.post(url, data);
+  //     console.log('Data berhasil dikirim ke AI Service');
+  //   } catch (error) {
+  //     console.error('Gagal kirim ke AI Service:', error.message);
+  //   }
+  // }
 
   private generateRandomNIP(): string {
     return Array.from({ length: 10 }, () =>
@@ -101,20 +101,20 @@ export class KaryawanService {
   ): Promise<KaryawanResponse> {
     let gambarPath = '';
 
-    // Gunakan userGuid atau generate baru
-    const userGuid = createKaryawanDto.userGuid || uuidv4();
+    // Gunakan guid atau generate baru
+    const guid = uuidv4();
 
     // Jika ada file yang diupload
     if (file) {
-      const safeNama = createKaryawanDto.nama
+      const safeNama = createKaryawanDto.name
         .toLowerCase()
         .replace(/\s+/g, '_');
-      const uniqueFileName = `${userGuid}_${safeNama}.jpg`;
+      const uniqueFileName = `${guid}_${safeNama}.jpg`;
       gambarPath = await this.uploadToFTP(file.path, uniqueFileName); // contoh hasil: "/presensi/abc123-17206-foto.jpg"
     }
 
     const karyawan = await this.karyawanModel.create({
-      nama: createKaryawanDto.nama || 'budi',
+      name: createKaryawanDto.name || 'budi',
       gender: createKaryawanDto.gender || 'L',
       gambar: gambarPath || '/presensi/default.jpg',
       address: createKaryawanDto.address || 'belum diisi',
@@ -125,36 +125,36 @@ export class KaryawanService {
       role: createKaryawanDto.role || 'user',
       guidUnit: createKaryawanDto.guidUnit || uuidv4(),
       unit: createKaryawanDto.unit || 'magang',
-      userGuid,
+      guid,
       gajiHarian: createKaryawanDto.gajiHarian || 0,
       status: createKaryawanDto.status ?? true,
     });
 
     // Kirim ke AI jika ada gambar yang diupload
-    if (gambarPath) {
-      await this.sendToAIService({
-        userGuid,
-        nama: createKaryawanDto.nama,
-        imagePath: gambarPath,
-      });
-    }
-    if (file) {
-      console.log('PATH FILE YANG AKAN DIUPLOAD:', file.path);
-    }
+    // if (gambarPath) {
+    //   await this.sendToAIService({
+    //     guid,
+    //     name: createKaryawanDto.name,
+    //     imagePath: gambarPath,
+    //   });
+    // }
+    // if (file) {
+    //   console.log('PATH FILE YANG AKAN DIUPLOAD:', file.path);
+    // }
 
     return this.mapToKaryawanResponse(karyawan);
   }
 
   // karyawan.service.ts
   async findAll(filterDto?: {
-    nama?: string;
+    name?: string;
     nip?: string;
     unit?: string;
   }): Promise<KaryawanResponse[]> {
     const query: any = {};
 
-    if (filterDto?.nama) {
-      query.nama = { $regex: filterDto.nama, $options: 'i' }; // case-insensitive
+    if (filterDto?.name) {
+      query.name = { $regex: filterDto.name, $options: 'i' }; // case-insensitive
     }
 
     if (filterDto?.nip) {

@@ -21,7 +21,7 @@ export class HistoryAiService {
   private mapToHistoryAiResponse(historyAi: HistoryAiDocument) {
     return {
       id: historyAi.id.toString(),
-      nama: historyAi.nama,
+      name: historyAi.name,
       mood: historyAi.mood,
       keletihan: historyAi.keletihan,
       gambar: historyAi.gambar,
@@ -179,7 +179,7 @@ export class HistoryAiService {
     // Simpan ke database
     const historyAi = await this.historyAiModel.create({
       ...createHistoryAiDto,
-      nama: createHistoryAiDto.nama || 'unknown',
+      name: createHistoryAiDto.name || 'unknown',
       mood: createHistoryAiDto.mood || 'senang',
       status_absen: statusAbsen,
       userGuid: userGuid,
@@ -218,9 +218,9 @@ export class HistoryAiService {
     // Build filter dynamically
     const filter: any = {};
 
-    // Filter by nama, status_absens, guid_device, unit, and tanggal
-    if (query.nama) {
-      filter.nama = query.nama;
+    // Filter by name, status_absens, guid_device, unit, and tanggal
+    if (query.name) {
+      filter.name = query.name;
     }
     if (query.status_absen) {
       filter.status_absen = query.status_absen;
@@ -400,7 +400,7 @@ export class HistoryAiService {
       .find({
         timestamp: { $gte: startTimestamp, $lte: endTimestamp },
         jam_masuk_actual: { $ne: null },
-        nama: { $nin: ['unknown', 'error'] },
+        name: { $nin: ['unknown', 'error'] },
       })
       .sort({ jam_masuk_actual: 1 })
       .exec();
