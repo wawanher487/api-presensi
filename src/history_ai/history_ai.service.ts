@@ -21,7 +21,7 @@ export class HistoryAiService {
   private mapToHistoryAiResponse(historyAi: HistoryAiDocument) {
     return {
       id: historyAi.id.toString(),
-      name: historyAi.name,
+      nama: historyAi.nama,
       mood: historyAi.mood,
       keletihan: historyAi.keletihan,
       gambar: historyAi.gambar,
@@ -50,39 +50,40 @@ export class HistoryAiService {
     const userGuid = createHistoryAiDto.userGuid;
 
     let datetimeParsed: dayjs.Dayjs;
+    let jamDariDatetime = '';
 
     if (!createHistoryAiDto.datetime) {
-      // Pakai waktu sekarang jika tidak ada input datetime
-      datetimeParsed = dayjs(); // otomatis WIB karena sudah di-set di config
+      // Kalau tidak diisi, ambil waktu sekarang dalam Asia/Jakarta
+      datetimeParsed = dayjs().tz('Asia/Jakarta');
     } else {
+      // Kalau diisi, biarkan Day.js parsing + offset-nya
       datetimeParsed = dayjs(createHistoryAiDto.datetime);
-      if (!datetimeParsed.isValid()) {
-        throw new HttpException(
-          'Format datetime tidak valid. Gunakan ISO 8601 seperti "2025-07-03T14:10:30+07:00"',
-          400,
-        );
-      }
     }
 
-    // Tambahkan zona waktu Asia/Jakarta
-    const datetimeWIB = datetimeParsed.tz('Asia/Jakarta');
+    if (!datetimeParsed.isValid()) {
+      throw new HttpException(
+        'Format datetime tidak valid. Gunakan ISO 8601 seperti "2025-07-03T14:10:30+07:00"',
+        400,
+      );
+    }
 
+    jamDariDatetime = datetimeParsed.format('HH:mm:ss');
+
+    // Konversi ke WIB untuk keperluan range harian & keterlambatan
+    const datetimeWIB = datetimeParsed.tz('Asia/Jakarta');
     const timestamp = createHistoryAiDto.timestamp || datetimeWIB.unix();
     const startOfDay = datetimeWIB.startOf('day').unix();
     const endOfDay = datetimeWIB.endOf('day').unix();
 
-    // Jam default
     const jamMasukNormal = createHistoryAiDto.jam_masuk || '08:00:00';
     const jamPulangMinimal = createHistoryAiDto.jam_keluar || '17:00:00';
-    const jamSekarang = datetimeWIB.format('HH:mm:ss');
 
+    // Tentukan status absen otomatis
     let statusAbsen = createHistoryAiDto.status_absen;
-
-    // Hitung status otomatis
     if (!statusAbsen) {
-      if (jamSekarang >= jamPulangMinimal) {
+      if (jamDariDatetime >= jamPulangMinimal) {
         statusAbsen = 'pulang';
-      } else if (jamSekarang >= jamMasukNormal) {
+      } else if (jamDariDatetime >= jamMasukNormal) {
         statusAbsen = 'terlambat';
       } else {
         statusAbsen = 'hadir';
@@ -92,7 +93,7 @@ export class HistoryAiService {
     const isMasuk = ['hadir', 'terlambat'].includes(statusAbsen);
     const isPulang = statusAbsen === 'pulang';
 
-    // Cek apakah sudah absen hari ini
+    // Cek duplikasi absen
     let existing: HistoryAiDocument | null = null;
 
     if (isMasuk) {
@@ -110,7 +111,7 @@ export class HistoryAiService {
     }
 
     if (isPulang) {
-      if (jamSekarang < jamPulangMinimal) {
+      if (jamDariDatetime < jamPulangMinimal) {
         throw new HttpException('Belum saatnya absen pulang.', 400);
       }
       existing = await this.historyAiModel.findOne({
@@ -126,7 +127,7 @@ export class HistoryAiService {
       }
     }
 
-    // Hitung keterlambatan
+    // Hitung keterlambatan (dalam menit)
     let totalMenitTerlambat = 0;
     if (statusAbsen === 'terlambat') {
       const waktuNormal = dayjs.tz(
@@ -137,13 +138,14 @@ export class HistoryAiService {
       totalMenitTerlambat = datetimeWIB.diff(waktuNormal, 'minute');
     }
 
-    // Isi jam masuk dan keluar actual
+    // Tentukan jam masuk dan jam keluar actual
     let jamMasukActual = '-';
+    let jamKeluarActual = '-';
+
     if (isMasuk) {
-      jamMasukActual = datetimeWIB.format('HH:mm:ss');
+      jamMasukActual = jamDariDatetime;
     }
 
-    let jamKeluarActual = '-';
     if (isPulang) {
       if (
         createHistoryAiDto.jam_keluar_actual &&
@@ -151,11 +153,11 @@ export class HistoryAiService {
       ) {
         jamKeluarActual = createHistoryAiDto.jam_keluar_actual;
       } else {
-        jamKeluarActual = jamSekarang;
+        jamKeluarActual = jamDariDatetime;
       }
     }
 
-    // Validasi input jam_masuk_actual dan jam_keluar_actual (jika ada)
+    // Validasi manual jika user input manual jam
     if (
       createHistoryAiDto.jam_masuk_actual &&
       !isValidJamFormat(createHistoryAiDto.jam_masuk_actual)
@@ -179,10 +181,10 @@ export class HistoryAiService {
     // Simpan ke database
     const historyAi = await this.historyAiModel.create({
       ...createHistoryAiDto,
-      name: createHistoryAiDto.name || 'unknown',
+      nama: createHistoryAiDto.nama || 'unknown',
       mood: createHistoryAiDto.mood || 'senang',
       status_absen: statusAbsen,
-      userGuid: userGuid,
+      userGuid,
       guid: createHistoryAiDto.guid || uuidv4(),
       guid_device: createHistoryAiDto.guid_device || 'CAM-P0721',
       process: createHistoryAiDto.process || 'done',
@@ -218,9 +220,9 @@ export class HistoryAiService {
     // Build filter dynamically
     const filter: any = {};
 
-    // Filter by name, status_absens, guid_device, unit, and tanggal
-    if (query.name) {
-      filter.name = query.name;
+    // Filter by nama, status_absens, guid_device, unit, and tanggal
+    if (query.nama) {
+      filter.nama = query.nama;
     }
     if (query.status_absen) {
       filter.status_absen = query.status_absen;
@@ -400,7 +402,7 @@ export class HistoryAiService {
       .find({
         timestamp: { $gte: startTimestamp, $lte: endTimestamp },
         jam_masuk_actual: { $ne: null },
-        name: { $nin: ['unknown', 'error'] },
+        nama: { $nin: ['unknown', 'error'] },
       })
       .sort({ jam_masuk_actual: 1 })
       .exec();

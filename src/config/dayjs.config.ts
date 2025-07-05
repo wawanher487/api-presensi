@@ -7,3 +7,4 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Jakarta');
 
 export default dayjs;
+
