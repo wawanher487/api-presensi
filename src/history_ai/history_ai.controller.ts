@@ -238,4 +238,29 @@ export class HistoryAiController {
       );
     }
   }
+
+  @Get('/user/:id')
+async findByIdWithUser(
+  @Param('id') id: string,
+): Promise<WebResponse<any>> {
+  try {
+    const result = await this.historyAiService.findByIdWithUser(id);
+    return {
+      success: true,
+      message: 'Data history_ai dan karyawan berhasil ditemukan',
+      data: result,
+      statuscode: HttpStatus.OK,
+    };
+  } catch (error) {
+    throw new HttpException(
+      {
+        success: false,
+        message: error.message,
+        statuscode: error.status || HttpStatus.NOT_FOUND,
+      },
+      error.status || HttpStatus.NOT_FOUND,
+    );
+  }
+}
+
 }

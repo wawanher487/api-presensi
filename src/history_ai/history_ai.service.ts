@@ -5,7 +5,7 @@ import {
 } from './dto/create-history_ai.dto';
 import { UpdateHistoryAiDto } from './dto/update-history_ai.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { isValidObjectId, Model } from 'mongoose';
+import { isValidObjectId, Model, Types } from 'mongoose';
 import { HistoryAi, HistoryAiDocument } from './schema/history_ai.schema';
 import { v4 as uuidv4 } from 'uuid';
 import { Query } from 'express-serve-static-core';
@@ -302,6 +302,35 @@ export class HistoryAiService {
       throw new HttpException(`Data dengan id ${id} tidak ditemukan.`, 404);
     }
     return this.mapToHistoryAiResponse(historyAi);
+  }
+
+  async findByIdWithUser(id: string): Promise<any> {
+    if (!isValidObjectId(id)) {
+      throw new HttpException(
+        `Parameter ${id} tidak valid atau tidak ditemukan.`,
+        400,
+      );
+    }
+
+    const result = await this.historyAiModel.aggregate([
+      { $match: { _id: new Types.ObjectId(id) } },
+      {
+        $lookup: {
+          from: 'karyawan',
+          localField: 'userGuid',
+          foreignField: 'guid',
+          as: 'user',
+        },
+      },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      { $limit: 1 },
+    ]);
+
+    if (!result || result.length === 0) {
+      throw new HttpException(`Data dengan id ${id} tidak ditemukan.`, 404);
+    }
+
+    return result[0];
   }
 
   async findByGuid(guid: string): Promise<HistoryAiResponse> {
