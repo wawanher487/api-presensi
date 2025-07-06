@@ -351,6 +351,51 @@ export class HistoryAiService {
         400,
       );
     }
+
+    const existingData = await this.historyAiModel.findById(id);
+    if (!existingData) {
+      throw new HttpException(`Data dengan id ${id} tidak ditemukan.`, 404);
+    }
+
+    const statusAbsen = existingData.status_absen;
+    const userGuid = existingData.userGuid;
+    const datetime = existingData.datetime;
+
+    // Cek jika ini adalah absensi masuk
+    const isMasuk = ['hadir', 'terlambat'].includes(statusAbsen);
+    const jamMasukBaru = updateHistoryAiDto.jam_masuk_actual;
+
+    if (isMasuk && jamMasukBaru) {
+      const tanggalWaktu = dayjs(datetime).tz('Asia/Jakarta');
+      const startOfDay = tanggalWaktu.startOf('day').unix();
+      const endOfDay = tanggalWaktu.endOf('day').unix();
+
+      // Cari absensi pulang di hari yang sama
+      const pulangHariItu = await this.historyAiModel.findOne({
+        userGuid,
+        status_absen: 'pulang',
+        timestamp: { $gte: startOfDay, $lte: endOfDay },
+      });
+
+      if (pulangHariItu && pulangHariItu.jam_keluar_actual) {
+        const jamMasukBaruObj = dayjs.tz(
+          `${tanggalWaktu.format('YYYY-MM-DD')} ${jamMasukBaru}`,
+          'Asia/Jakarta',
+        );
+        const jamPulangObj = dayjs.tz(
+          `${tanggalWaktu.format('YYYY-MM-DD')} ${pulangHariItu.jam_keluar_actual}`,
+          'Asia/Jakarta',
+        );
+
+        if (jamMasukBaruObj.isAfter(jamPulangObj)) {
+          throw new HttpException(
+            `Jam datang tidak boleh melebihi jam pulang (${pulangHariItu.jam_keluar_actual})`,
+            400,
+          );
+        }
+      }
+    }
+
     const historyAi = await this.historyAiModel.findByIdAndUpdate(
       id,
       updateHistoryAiDto,
