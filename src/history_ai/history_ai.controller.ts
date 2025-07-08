@@ -171,11 +171,11 @@ export class HistoryAiController {
   }
 
   @Get('/top_erly')
-  async getAllDashboard(
+  async getKehadiranDashboard(
     @Query() query: ExpressQuery,
   ): Promise<WebResponse<HistoryAiResponse[]>> {
     try {
-      const result = await this.historyAiService.findAllByTanggal(query);
+      const result = await this.historyAiService.getKehadiranDashboard(query);
       return {
         success: true,
         message: 'Data berhasil diambil',

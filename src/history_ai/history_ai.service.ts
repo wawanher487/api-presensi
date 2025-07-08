@@ -452,7 +452,7 @@ export class HistoryAiService {
     return data.map(this.mapToHistoryAiResponse);
   }
 
-  async findAllByTanggal(query: Query): Promise<HistoryAiResponse[]> {
+  async getKehadiranDashboard(query: Query): Promise<HistoryAiResponse[]> {
     const { tanggal } = query;
 
     if (!tanggal || typeof tanggal !== 'string') {
