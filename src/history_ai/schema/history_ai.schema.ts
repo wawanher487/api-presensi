@@ -17,10 +17,8 @@ export class HistoryAi {
   @Prop({ required: true })
   keletihan: number;
 
-  @Prop({
-    required: true,
-  })
-  status_absen: string;
+  @Prop({ type: [String], required: true, default: [] })
+  status_absen: string[];
 
   @Prop()
   userGuid: string;

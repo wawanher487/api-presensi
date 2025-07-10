@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateHistoryAiDto {
   @IsString()
@@ -13,9 +13,10 @@ export class UpdateHistoryAiDto {
   @IsOptional()
   keletihan?: number;
 
-  @IsString()
   @IsOptional()
-  status_absen?: string;
+  @IsArray()
+  @IsString({ each: true })
+  status_absen?: string[];
 
   @IsString()
   @IsOptional()

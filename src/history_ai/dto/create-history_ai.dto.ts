@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  IsArray,
+} from 'class-validator';
 
 export class CreateHistoryAiDto {
   @IsString()
@@ -13,9 +19,11 @@ export class CreateHistoryAiDto {
   @IsOptional()
   keletihan?: number;
 
-  @IsString()
+
   @IsOptional()
-  status_absen?: string;
+  @IsArray()
+  @IsString({ each: true })
+  status_absen?: string[];
 
   @IsString()
   @IsNotEmpty()
@@ -86,8 +94,7 @@ export class HistoryAiResponse {
   @IsNumber()
   keletihan?: number;
 
-  @IsString()
-  status_absen: string;
+  status_absen?: string[];
 
   @IsString()
   gambar: string;

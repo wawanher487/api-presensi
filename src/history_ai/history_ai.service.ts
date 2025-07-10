@@ -75,23 +75,24 @@ export class HistoryAiService {
     const startOfDay = datetimeWIB.startOf('day').unix();
     const endOfDay = datetimeWIB.endOf('day').unix();
 
-    const jamMasukNormal = createHistoryAiDto.jam_masuk || '08:00:00';
+    const jamMasukNormal = createHistoryAiDto.jam_masuk || '09:00:00';
     const jamPulangMinimal = createHistoryAiDto.jam_keluar || '17:00:00';
 
     // Tentukan status absen otomatis
-    let statusAbsen = createHistoryAiDto.status_absen;
-    if (!statusAbsen) {
+    let statusAbsen: string[] | undefined = createHistoryAiDto.status_absen;
+
+    if (!statusAbsen || statusAbsen.length === 0) {
       if (jamDariDatetime >= jamPulangMinimal) {
-        statusAbsen = 'pulang';
+        statusAbsen = ['Pulang'];
       } else if (jamDariDatetime >= jamMasukNormal) {
-        statusAbsen = 'terlambat';
+        statusAbsen = ['Terlambat'];
       } else {
-        statusAbsen = 'hadir';
+        statusAbsen = ['Hadir'];
       }
     }
 
-    const isMasuk = ['hadir', 'terlambat'].includes(statusAbsen);
-    const isPulang = statusAbsen === 'pulang';
+    const isMasuk = statusAbsen.some((s) => ['Hadir', 'Terlambat'].includes(s));
+    const isPulang = statusAbsen.includes('Pulang');
 
     // Cek duplikasi absen
     let existing: HistoryAiDocument | null = null;
@@ -99,7 +100,7 @@ export class HistoryAiService {
     if (isMasuk) {
       existing = await this.historyAiModel.findOne({
         userGuid,
-        status_absen: { $in: ['hadir', 'terlambat'] },
+        status_absen: { $in: ['Hadir', 'Terlambat'] },
         timestamp: { $gte: startOfDay, $lte: endOfDay },
       });
       if (existing) {
@@ -111,25 +112,58 @@ export class HistoryAiService {
     }
 
     if (isPulang) {
-      if (jamDariDatetime < jamPulangMinimal) {
-        throw new HttpException('Belum saatnya absen pulang.', 400);
-      }
-      existing = await this.historyAiModel.findOne({
+      // 1. Cek apakah sudah pernah absen pulang hari ini
+      const existingPulang = await this.historyAiModel.findOne({
         userGuid,
-        status_absen: 'pulang',
+        status_absen: 'Pulang',
         timestamp: { $gte: startOfDay, $lte: endOfDay },
       });
-      if (existing) {
+
+      if (existingPulang) {
         throw new HttpException(
           'Karyawan sudah melakukan absensi pulang hari ini.',
           400,
         );
       }
+
+      // 2. Cek apakah sudah absen masuk
+      const absensiMasukHariIni = await this.historyAiModel.findOne({
+        userGuid,
+        status_absen: { $in: ['Hadir', 'Terlambat'] },
+        timestamp: { $gte: startOfDay, $lte: endOfDay },
+      });
+
+      if (!absensiMasukHariIni) {
+        throw new HttpException(
+          'Karyawan belum melakukan absensi masuk hari ini.',
+          400,
+        );
+      }
+
+      // 3. Validasi jam pulang tidak terlalu awal
+      const jamSekarang = dayjs(datetimeWIB.format('HH:mm:ss'), 'HH:mm:ss');
+      const jamPulang = dayjs(jamPulangMinimal, 'HH:mm:ss');
+      if (jamSekarang.isBefore(jamPulang)) {
+        throw new HttpException('Belum saatnya absen pulang.', 400);
+      }
+
+      // 4. Update entri absensi masuk (bukan buat entri baru)
+      if (!absensiMasukHariIni.status_absen.includes('Pulang')) {
+        absensiMasukHariIni.status_absen.push('Pulang');
+      }
+      absensiMasukHariIni.jam_keluar_actual = jamDariDatetime;
+      absensiMasukHariIni.updatedAt = new Date();
+
+      await absensiMasukHariIni.save();
+      return this.mapToHistoryAiResponse(absensiMasukHariIni);
     }
 
     // Hitung keterlambatan (dalam menit)
     let totalMenitTerlambat = 0;
-    if (statusAbsen === 'terlambat') {
+    if (
+      statusAbsen.includes('Terlambat') ||
+      statusAbsen.includes('terlambat')
+    ) {
       const waktuNormal = dayjs.tz(
         `${datetimeWIB.format('YYYY-MM-DD')} ${jamMasukNormal}`,
         'YYYY-MM-DD HH:mm:ss',
@@ -196,7 +230,10 @@ export class HistoryAiService {
       jam_keluar_actual: jamKeluarActual,
       jam_masuk: jamMasukNormal,
       jam_keluar: jamPulangMinimal,
-      jumlah_telat: statusAbsen === 'terlambat' ? 1 : 0,
+      jumlah_telat:
+        statusAbsen.includes('Terlambat') || statusAbsen.includes('terlambat')
+          ? 1
+          : 0,
       total_jam_telat: totalMenitTerlambat,
     });
 
@@ -362,7 +399,8 @@ export class HistoryAiService {
     const datetime = existingData.datetime;
 
     // Cek jika ini adalah absensi masuk
-    const isMasuk = ['hadir', 'terlambat'].includes(statusAbsen);
+    const isMasuk = statusAbsen.some((s) => ['Hadir', 'Terlambat'].includes(s));
+
     const jamMasukBaru = updateHistoryAiDto.jam_masuk_actual;
 
     if (isMasuk && jamMasukBaru) {
@@ -373,7 +411,7 @@ export class HistoryAiService {
       // Cari absensi pulang di hari yang sama
       const pulangHariItu = await this.historyAiModel.findOne({
         userGuid,
-        status_absen: 'pulang',
+        status_absen: 'Pulang',
         timestamp: { $gte: startOfDay, $lte: endOfDay },
       });
 
@@ -508,11 +546,11 @@ export class HistoryAiService {
     let totalTelat = 0;
 
     for (const data of dataHariIni) {
-      if (data.status_absen === 'hadir') {
+      if (data.status_absen.includes('Hadir')) {
         totalHadir++;
-      } else if (data.status_absen === 'terlambat') {
+      } else if (data.status_absen.includes('Terlambat')) {
         totalTelat++;
-      } else if (data.status_absen === 'tidak hadir') {
+      } else if (data.status_absen.includes('Tidak hadir')) {
         totalTidakHadir++;
       }
     }
