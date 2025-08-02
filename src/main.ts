@@ -13,8 +13,11 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: '*', // Ganti sesuai asal frontend
-    // credentials: true, // Jika kamu pakai cookies/token auth
+    origin: [
+      'http://localhost:5173', // development lokal
+      'https://absensi-ai.vercel.app', // frontend vercel
+    ],
+    credentials: true, // agar bisa kirim cookie / auth
   });
 
   await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
