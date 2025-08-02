@@ -14,7 +14,7 @@ async function bootstrap() {
   );
   app.enableCors({
     origin: '*', // Ganti sesuai asal frontend
-    credentials: true, // Jika kamu pakai cookies/token auth
+    // credentials: true, // Jika kamu pakai cookies/token auth
   });
 
   await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
