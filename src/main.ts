@@ -13,7 +13,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: '*',, // Ganti sesuai asal frontend
+    origin: '*', // Ganti sesuai asal frontend
     credentials: true, // Jika kamu pakai cookies/token auth
   });
 
