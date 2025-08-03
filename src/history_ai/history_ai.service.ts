@@ -530,8 +530,12 @@ export class HistoryAiService {
   }
 
   async getKehadiranHarian() {
-    const startOfToday = dayjs().startOf('day').unix(); // 00:00 hari ini
-    const endOfToday = dayjs().endOf('day').unix(); // 23:59 hari ini
+    // const startOfToday = dayjs().startOf('day').unix(); // 00:00 hari ini
+    // const endOfToday = dayjs().endOf('day').unix(); // 23:59 hari ini
+    const jakartaNow = dayjs().tz(); // pastikan menggunakan timezone Asia/Jakarta
+    const startOfToday = jakartaNow.startOf('day').unix(); // 00:00 WIB
+    const endOfToday = jakartaNow.endOf('day').unix(); // 23:59 WIB
+
 
     const dataHariIni = await this.historyAiModel.find({
       timestamp: {
@@ -556,7 +560,7 @@ export class HistoryAiService {
     }
 
     return {
-      tanggal: dayjs().format('DD-MM-YYYY'),
+      tanggal: jakartaNow.format('DD-MM-YYYY'),
       totalHadir,
       totalTelat,
       totalTidakHadir,
